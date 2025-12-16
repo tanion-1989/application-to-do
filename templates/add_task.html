@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>タスク追加</title>
+</head>
+<body>
+<label>
+  繰り返し:
+  <select name="repeat_type">
+    <option value="none">なし</option>
+    <option value="weekly">毎週</option>
+  </select>
+</label>
+
+<label>
+  曜日:
+  <select name="repeat_weekday">
+    <option value="">--</option>
+    <option value="0">月</option>
+    <option value="1">火</option>
+    <option value="2">水</option>
+    <option value="3">木</option>
+    <option value="4">金</option>
+    <option value="5">土</option>
+    <option value="6">日</option>
+  </select>
+</label>
+
+<h1>タスク追加</h1>
+
+<form method="POST">
+    タイトル: <input name="title" required><br><br>
+    日付: <input type="date" name="date" required><br><br>
+    <button type="submit">追加</button>
+</form>
+
+<a href="/">戻る</a>
+
+</body>
+</html>
