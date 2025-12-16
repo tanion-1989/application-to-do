@@ -88,7 +88,7 @@ def api_tasks():
 def add_task():
     if request.method == "POST":
         title = request.form["title"]
-        date = request.form["date"]
+        date = request.form.get("date")
         repeat_type = request.form.get("repeat_type", "none")
         repeat_weekday = request.form.get("repeat_weekday")
 

@@ -5,7 +5,13 @@
     <title>タスク追加</title>
 </head>
 <body>
-<label>
+
+
+<h1>タスク追加</h1>
+
+<form method="POST">
+
+  <label>
   繰り返し:
   <select name="repeat_type">
     <option value="none">なし</option>
@@ -26,15 +32,11 @@
     <option value="6">日</option>
   </select>
 </label>
-
-<h1>タスク追加</h1>
-
-<form method="POST">
     タイトル: <input name="title" required><br><br>
     日付: <input type="date" name="date" required><br><br>
     <button type="submit">追加</button>
 </form>
-
+<br>
 <a href="/">戻る</a>
 
 </body>
