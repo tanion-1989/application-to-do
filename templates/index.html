@@ -5,6 +5,23 @@
     <title>My ToDo Calendar</title>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<style>
+#calendar {
+  height: 80vh;
+  max-width: 900px;
+  margin: 40px auto;
+}
+
+/* 完了したタスク用 */
+.fc-event.done {
+  background-color: #999 !important;
+  border-color: #999 !important;
+  text-decoration: line-through;
+}
+</style>
+
+
+
 </head>
 <body>
 
@@ -21,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function () {
         initialView: 'dayGridMonth',
         events: "/api/tasks",
         eventClick: function(info) {
-            fetch("/api/finish/" + info.event.id, {method: "POST"})
+            fetch("/api/finish/" + info.event.id, { method: "POST" })
             .then(() => {
-                info.event.setProp("color", "#888");
+                info.event.setProp("classNames", ["done"]);
             });
         }
     });
@@ -31,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.render();
 });
 </script>
+
 
 </body>
 </html>
