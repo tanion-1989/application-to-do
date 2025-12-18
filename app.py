@@ -111,14 +111,28 @@ def add_task():
 
 
 # ---- タスク完了API ----
-@app.route("/api/finish/<int:task_id>", methods=["POST"])
-def finish(task_id):
+@app.route("/api/toggle/<int:task_id>", methods=["POST"])
+def toggle(task_id):
     con = sqlite3.connect("tasks.db")
     cur = con.cursor()
-    cur.execute("UPDATE tasks SET done=1 WHERE id=?", (task_id,))
+
+    # 今の状態を取得
+    cur.execute("SELECT done FROM tasks WHERE id=?", (task_id,))
+    row = cur.fetchone()
+
+    if row is None:
+        con.close()
+        return jsonify({"error": "not found"}), 404
+
+    current_done = row[0]
+    new_done = 0 if current_done else 1
+
+    # 反転して保存
+    cur.execute("UPDATE tasks SET done=? WHERE id=?", (new_done, task_id))
     con.commit()
     con.close()
-    return jsonify({"status": "ok"})
+
+    return jsonify({"done": new_done})
 
 
 if __name__ == "__main__":

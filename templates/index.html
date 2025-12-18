@@ -37,13 +37,21 @@ document.addEventListener('DOMContentLoaded', function () {
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         events: "/api/tasks",
+
         eventClick: function(info) {
-            fetch("/api/finish/" + info.event.id, { method: "POST" })
-            .then(() => {
-                info.event.setProp("classNames", ["done"]);
+        fetch("/api/toggle/" + info.event.id, { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                if (data.done === 1) {
+                    info.event.setProp("classNames", ["done"]);
+                } else {
+                    info.event.setProp("classNames", []);
+                }
             });
         }
     });
+
+
 
     calendar.render();
 });
