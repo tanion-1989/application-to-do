@@ -1,3 +1,6 @@
+# except
+*:Zone.Identifier
+
 # add user
 .venv
 tasks.db
