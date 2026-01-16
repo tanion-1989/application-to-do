@@ -1,62 +1,455 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-    <meta charset="utf-8">
-    <title>My ToDo Calendar</title>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-<style>
-#calendar {
-  height: 80vh;
-  max-width: 900px;
-  margin: 40px auto;
-}
-
-/* 完了したタスク用 */
-.fc-event.done {
-  background-color: #999 !important;
-  border-color: #999 !important;
-  text-decoration: line-through;
-}
-</style>
-
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODOカレンダー</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #0b7dda;
+        }
+        
+        #calendar {
+            margin-top: 20px;
+        }
+        
+        .fc-event {
+            cursor: pointer;
+        }
+        
+        .fc-event-title {
+            font-weight: 500;
+        }
+        
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: #333;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .modal-body p {
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+        }
+        
+        .task-list-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .task-list {
+            margin-top: 20px;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .task-item.completed {
+            border-left-color: #888;
+            opacity: 0.7;
+        }
+        
+        .task-info {
+            flex: 1;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .task-meta {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>📅 TODOカレンダー</h1>
+            <div class="header-buttons">
+                <a href="/add" class="btn btn-primary">+ タスク追加</a>
+                <button onclick="toggleTaskList()" class="btn btn-secondary">タスク一覧</button>
+            </div>
+        </header>
+        
+        <div id="calendar"></div>
+        
+        <div class="task-list-section" id="taskListSection" style="display: none;">
+            <h2>全タスク一覧</h2>
+            <div class="task-list" id="taskList"></div>
+        </div>
+    </div>
+    
+    <!-- タスク詳細モーダル -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">タスク詳細</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>日付:</strong> <span id="modalDate"></span></p>
+                <p><strong>種類:</strong> <span id="modalType"></span></p>
+                <p><strong>状態:</strong> <span id="modalStatus"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteTask()">削除</button>
+                <button class="btn btn-success" onclick="toggleComplete()">完了/未完了</button>
+            </div>
+        </div>
+    </div>
 
-<h1>カレンダー</h1>
-<a href="/add">タスクを追加</a>
-
-<div id="calendar"></div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: "/api/tasks",
-
-        eventClick: function(info) {
-        fetch("/api/toggle/" + info.event.id, { method: "POST" })
-            .then(res => res.json())
-            .then(data => {
-                if (data.done === 1) {
-                    info.event.setProp("classNames", ["done"]);
-                } else {
-                    info.event.setProp("classNames", []);
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script>
+        let calendar;
+        let currentEvent = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ja',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                buttonText: {
+                    today: '今日',
+                    month: '月',
+                    week: '週',
+                    list: 'リスト'
+                },
+                events: '/api/tasks',
+                eventClick: function(info) {
+                    showTaskModal(info.event);
+                },
+                eventDidMount: function(info) {
+                    if (info.event.extendedProps.completed) {
+                        info.el.style.textDecoration = 'line-through';
+                    }
                 }
             });
+            
+            calendar.render();
+        });
+        
+        function showTaskModal(event) {
+            currentEvent = event;
+            
+            document.getElementById('modalTitle').textContent = event.title;
+            document.getElementById('modalDate').textContent = event.startStr;
+            
+            const isRecurring = event.extendedProps.isRecurring;
+            const typeText = isRecurring ? '繰り返しタスク' : '単発タスク';
+            document.getElementById('modalType').textContent = typeText;
+            
+            const completed = event.extendedProps.completed;
+            document.getElementById('modalStatus').textContent = completed ? '完了' : '未完了';
+            
+            document.getElementById('taskModal').style.display = 'block';
         }
-    });
-
-
-
-    calendar.render();
-});
-</script>
-
-
+        
+        function closeModal() {
+            document.getElementById('taskModal').style.display = 'none';
+            currentEvent = null;
+        }
+        
+        async function toggleComplete() {
+            if (!currentEvent) return;
+            
+            const taskId = currentEvent.extendedProps.taskId;
+            const date = currentEvent.startStr;
+            const isRecurring = currentEvent.extendedProps.isRecurring;
+            
+            try {
+                const response = await fetch('/api/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        taskId: taskId,
+                        date: date,
+                        isRecurring: isRecurring
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.completed !== undefined) {
+                    calendar.refetchEvents();
+                    closeModal();
+                }
+            } catch (error) {
+                console.error('Error toggling task:', error);
+                alert('エラーが発生しました');
+            }
+        }
+        
+        async function deleteTask() {
+            if (!currentEvent) return;
+            
+            if (!confirm('このタスクを削除しますか？')) return;
+            
+            const taskId = currentEvent.extendedProps.taskId;
+            
+            try {
+                const response = await fetch(`/api/delete/${taskId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    calendar.refetchEvents();
+                    closeModal();
+                    loadTaskList(); // リストも更新
+                }
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                alert('エラーが発生しました');
+            }
+        }
+        
+        async function toggleTaskList() {
+            const section = document.getElementById('taskListSection');
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                await loadTaskList();
+            } else {
+                section.style.display = 'none';
+            }
+        }
+        
+        async function loadTaskList() {
+            try {
+                const response = await fetch('/api/tasks/list');
+                const tasks = await response.json();
+                
+                const listEl = document.getElementById('taskList');
+                
+                if (tasks.length === 0) {
+                    listEl.innerHTML = '<p>タスクがありません</p>';
+                    return;
+                }
+                
+                listEl.innerHTML = tasks.map(task => {
+                    const typeLabels = {
+                        'none': '単発',
+                        'daily': '毎日',
+                        'weekly': '毎週',
+                        'monthly': '毎月'
+                    };
+                    
+                    const weekdays = ['月', '火', '水', '木', '金', '土', '日'];
+                    const repeatInfo = task.repeat_type === 'weekly' && task.repeat_weekday !== null
+                        ? ` (${weekdays[task.repeat_weekday]}曜日)`
+                        : '';
+                    
+                    return `
+                        <div class="task-item ${task.done ? 'completed' : ''}">
+                            <div class="task-info">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    ${task.date || '日付未設定'} | 
+                                    ${typeLabels[task.repeat_type]}${repeatInfo}
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-small btn-danger" onclick="deleteTaskById(${task.id})">削除</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading task list:', error);
+            }
+        }
+        
+        async function deleteTaskById(taskId) {
+            if (!confirm('このタスクを削除しますか？')) return;
+            
+            try {
+                const response = await fetch(`/api/delete/${taskId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    calendar.refetchEvents();
+                    loadTaskList();
+                }
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                alert('エラーが発生しました');
+            }
+        }
+        
+        // モーダルの外側クリックで閉じる
+        window.onclick = function(event) {
+            const modal = document.getElementById('taskModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
 </body>
 </html>
