@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タスク編集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        .repeat-options {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .repeat-options.active {
+            display: block;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✏️ タスクを編集</h1>
+        </header>
+        
+        <form method="POST" action="/edit/{{ task.id }}">
+            <div class="form-group">
+                <label for="title">タスク名 *</label>
+                <input type="text" id="title" name="title" required value="{{ task.title }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="date">日付 *</label>
+                <input type="date" id="date" name="date" required value="{{ task.date }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="repeat_type">繰り返し設定</label>
+                <select id="repeat_type" name="repeat_type" onchange="toggleRepeatOptions()">
+                    <option value="none" {% if task.repeat_type == 'none' %}selected{% endif %}>繰り返さない</option>
+                    <option value="daily" {% if task.repeat_type == 'daily' %}selected{% endif %}>毎日</option>
+                    <option value="weekly" {% if task.repeat_type == 'weekly' %}selected{% endif %}>毎週</option>
+                    <option value="monthly" {% if task.repeat_type == 'monthly' %}selected{% endif %}>毎月</option>
+                </select>
+            </div>
+            
+            <div id="repeatOptions" class="repeat-options {% if task.repeat_type == 'weekly' %}active{% endif %}">
+                <div class="form-group">
+                    <label for="repeat_weekday">曜日指定（毎週の場合）</label>
+                    <select id="repeat_weekday" name="repeat_weekday">
+                        <option value="">選択してください</option>
+                        <option value="0" {% if task.repeat_weekday == 0 %}selected{% endif %}>月曜日</option>
+                        <option value="1" {% if task.repeat_weekday == 1 %}selected{% endif %}>火曜日</option>
+                        <option value="2" {% if task.repeat_weekday == 2 %}selected{% endif %}>水曜日</option>
+                        <option value="3" {% if task.repeat_weekday == 3 %}selected{% endif %}>木曜日</option>
+                        <option value="4" {% if task.repeat_weekday == 4 %}selected{% endif %}>金曜日</option>
+                        <option value="5" {% if task.repeat_weekday == 5 %}selected{% endif %}>土曜日</option>
+                        <option value="6" {% if task.repeat_weekday == 6 %}selected{% endif %}>日曜日</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <a href="/" class="btn btn-secondary">キャンセル</a>
+                <button type="submit" class="btn btn-primary">変更を保存</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        function toggleRepeatOptions() {
+            const repeatType = document.getElementById('repeat_type').value;
+            const repeatOptions = document.getElementById('repeatOptions');
+            
+            if (repeatType === 'weekly') {
+                repeatOptions.classList.add('active');
+            } else {
+                repeatOptions.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
