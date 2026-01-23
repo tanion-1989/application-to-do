@@ -177,6 +177,47 @@ def add_task():
     
     return render_template("add_task.html")
 
+# ---- タスク編集 ----
+@app.route("/edit/<int:task_id>", methods=["GET", "POST"])
+def edit_task(task_id):
+    con = sqlite3.connect("tasks.db")
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    
+    if request.method == "POST":
+        title = request.form["title"]
+        date = request.form.get("date")
+        repeat_type = request.form.get("repeat_type", "none")
+        repeat_weekday = request.form.get("repeat_weekday")
+        
+        if repeat_weekday == "":
+            repeat_weekday = None
+        else:
+            repeat_weekday = int(repeat_weekday)
+        
+        cur.execute(
+            """
+            UPDATE tasks 
+            SET title=?, date=?, repeat_type=?, repeat_weekday=?
+            WHERE id=?
+            """,
+            (title, date, repeat_type, repeat_weekday, task_id)
+        )
+        con.commit()
+        con.close()
+        
+        return redirect("/")
+    
+    # GET: タスク情報を取得
+    cur.execute("SELECT * FROM tasks WHERE id=?", (task_id,))
+    task = cur.fetchone()
+    con.close()
+    
+    if task is None:
+        return "タスクが見つかりません", 404
+    
+    return render_template("edit_task.html", task=dict(task))
+
 # ---- タスク削除 ----
 @app.route("/api/delete/<int:task_id>", methods=["DELETE"])
 def delete_task(task_id):

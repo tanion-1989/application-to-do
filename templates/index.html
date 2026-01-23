@@ -247,6 +247,7 @@
                 <p><strong>状態:</strong> <span id="modalStatus"></span></p>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="editTask()">編集</button>
                 <button class="btn btn-danger" onclick="deleteTask()">削除</button>
                 <button class="btn btn-success" onclick="toggleComplete()">完了/未完了</button>
             </div>
@@ -308,6 +309,12 @@
         function closeModal() {
             document.getElementById('taskModal').style.display = 'none';
             currentEvent = null;
+        }
+        
+        function editTask() {
+            if (!currentEvent) return;
+            const taskId = currentEvent.extendedProps.taskId;
+            window.location.href = `/edit/${taskId}`;
         }
         
         async function toggleComplete() {
@@ -413,6 +420,7 @@
                                 </div>
                             </div>
                             <div class="task-actions">
+                                <a href="/edit/${task.id}" class="btn btn-small btn-secondary">編集</a>
                                 <button class="btn btn-small btn-danger" onclick="deleteTaskById(${task.id})">削除</button>
                             </div>
                         </div>
